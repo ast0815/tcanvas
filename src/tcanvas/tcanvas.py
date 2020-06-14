@@ -47,7 +47,7 @@ class Texel(object):
 
     """
 
-    def __init__(self, character="", fg_color="0", bg_color="0", bold=False, faint=False, italic=False, underline=False, cross=False, blink=False, overline=False):
+    def __init__(self, character="", fg_color="0", bg_color="0", bold=False, faint=False, italic=False, underline=False, cross=False, blink=False, inverse=False, overline=False):
         self.character = character
         self.fg_color = fg_color
         self.bg_color = bg_color
@@ -56,6 +56,7 @@ class Texel(object):
         self.italic = italic
         self.underline = underline
         self.blink = blink
+        self.inverse = inverse
         self.cross = cross
         self.overline = overline
 
@@ -114,6 +115,8 @@ class Texel(object):
             ansi += "4;"
         if self.blink:
             ansi += "5;"
+        if self.inverse:
+            ansi += "7;"
         if self.cross:
             ansi += "9;"
         if self.overline:

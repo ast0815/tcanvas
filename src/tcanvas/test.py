@@ -8,6 +8,7 @@ def test_texel():
     echo("=====")
     echo("Empty:   " + Texel("").render())
     echo("Default: " + Texel("D").render())
+    echo("Inverse: " + Texel("I", inverse=True).render())
     echo("Colours: " + Texel("C", fg_color='r', bg_color='K').render())
     echo("RGB:     " + Texel("R", fg_color=(0,255,0), bg_color=(1.0, 0.0, 1.0)).render())
     echo("Bold:    " + Texel("B", bold=True).render())
