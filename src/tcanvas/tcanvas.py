@@ -32,6 +32,7 @@ W      bright white
 
 import click
 
+
 class Texel(object):
     """One character on the screen.
 
@@ -47,7 +48,20 @@ class Texel(object):
 
     """
 
-    def __init__(self, character="", fg_color="0", bg_color="0", bold=False, faint=False, italic=False, underline=False, cross=False, blink=False, inverse=False, overline=False):
+    def __init__(
+        self,
+        character="",
+        fg_color="0",
+        bg_color="0",
+        bold=False,
+        faint=False,
+        italic=False,
+        underline=False,
+        cross=False,
+        blink=False,
+        inverse=False,
+        overline=False,
+    ):
         self.character = character
         self.fg_color = fg_color
         self.bg_color = bg_color
@@ -86,18 +100,18 @@ class Texel(object):
         }
         if color in subs:
             if bg:
-                return "%d;"%(subs[color] + 10,)
+                return "%d;" % (subs[color] + 10,)
             else:
-                return "%d;"%(subs[color],)
+                return "%d;" % (subs[color],)
 
         # Other wise this probably a tuple of rgb values
         if isinstance(color[0], float):
             # Translate 0.0-1.0 floats to 0-255 ints
             color = tuple(int(x * 255) for x in color)
         if bg:
-            return "48;2;%d;%d;%d;"%color
+            return "48;2;%d;%d;%d;" % color
         else:
-            return "38;2;%d;%d;%d;"%color
+            return "38;2;%d;%d;%d;" % color
 
     def render(self):
         """Return the ANSI sequence representing the Texel."""
@@ -121,16 +135,17 @@ class Texel(object):
             ansi += "9;"
         if self.overline:
             ansi += "53;"
-        ansi = ansi[:-1] # Remove last ";"
+        ansi = ansi[:-1]  # Remove last ";"
         ansi += "m"
         if len(self.character) > 0:
-            ansi += self.character # The actual character to print
+            ansi += self.character  # The actual character to print
         else:
             ansi += " "
         # Finally reset everything
         ansi += "\033[0m"
 
         return ansi
+
 
 class TCanvas(object):
     """A basic canvas.
