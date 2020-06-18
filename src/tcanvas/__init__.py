@@ -1,1 +1,1 @@
-from tcanvas.tcanvas import *
+from .tcanvas import *
