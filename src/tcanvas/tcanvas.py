@@ -334,3 +334,32 @@ class TCanvas(object):
                     x += dpx
                     y += dpy
                     self.line((x, y), pos2, transformation, **kwargs)
+
+    def polygon(self, vertices, transformation=None, fill=True, **kwargs):
+        """Draw a polygon given by a list of vertices.
+
+        Filling only works with convex-ish polygons.
+
+        """
+
+        if fill:
+            # Centre position
+            xc = 0.0
+            yc = 0.0
+            for pos in vertices:
+                xc += pos[0]
+                yc += pos[1]
+            xc /= len(vertices)
+            yc /= len(vertices)
+            pos0 = vertices[-1]
+            for pos1 in vertices:
+                self.triangle(
+                    (xc, yc), pos0, pos1, transformation=transformation, **kwargs
+                )
+                pos0 = pos1
+        else:
+            # Just draw lines
+            pos0 = vertices[-1]
+            for pos1 in vertices:
+                self.line(pos0, pos1, transformation=transformation, **kwargs)
+                pos0 = pos1

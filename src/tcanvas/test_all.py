@@ -34,6 +34,8 @@ def test_tcanvas():
     c.line((2, -1), (6, 4), fg_color="W", blink=True, character="x")
     c.triangle((2.6, 4.6), (6.4, 8.4), (15, 7), bg_color="c", fg_color="k")
     c.triangle((3, 5), (6, 8), (15, 7), character="t", fill=False)
+    c.polygon([(10, 5), (18, 6), (19, 8), (18, 9), (12, 6)], bg_color="y", fg_color="k")
+    c.polygon([(10, 5), (18, 6), (19, 8), (18, 9), (12, 6)], character="p", fill=False)
     c.show()
 
 
