@@ -32,6 +32,8 @@ def test_tcanvas():
     c.set((19, 9), character="#")
     c.line((-1, 5), (10, -2), bg_color="r")
     c.line((2, -1), (6, 4), fg_color="W", blink=True, character="x")
+    c.triangle((2.6, 4.6), (6.4, 8.4), (15, 7), bg_color="c", fg_color="k")
+    c.triangle((3, 5), (6, 8), (15, 7), character="t", fill=False)
     c.show()
 
 

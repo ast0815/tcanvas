@@ -304,3 +304,33 @@ class TCanvas(object):
             else:
                 self.set((x, y), transformation=None, character=char, **kwargs)
                 x += 1
+
+    def triangle(self, pos0, pos1, pos2, transformation=None, fill=True, **kwargs):
+        """Draw a triangle."""
+
+        x0, y0 = self.transform_position(pos0, transformation=transformation)
+        x1, y1 = self.transform_position(pos1, transformation=transformation)
+        x2, y2 = self.transform_position(pos2, transformation=transformation)
+
+        self.line((x0, y0), (x1, y1), transformation=None, **kwargs)
+        self.line((x1, y1), (x2, y2), transformation=None, **kwargs)
+        self.line((x0, y0), (x2, y2), transformation=None, **kwargs)
+
+        if fill:
+            px0, py0 = pos0
+            px1, py1 = pos1
+            Dx = abs(x1 - x0)
+            Dy = abs(y1 - y0)
+            steps = max(Dx, Dy)
+
+            # First and last step were alreday drawn above
+            if steps >= 2:
+                dpx = (px1 - px0) / steps
+                dpy = (py1 - py0) / steps
+                x = px0
+                y = py0
+
+                for i in range(steps - 1):
+                    x += dpx
+                    y += dpy
+                    self.line((x, y), pos2, transformation, **kwargs)
