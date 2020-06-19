@@ -363,3 +363,15 @@ class TCanvas(object):
             for pos1 in vertices:
                 self.line(pos0, pos1, transformation=transformation, **kwargs)
                 pos0 = pos1
+
+    def rectangle(self, pos0, pos1, transformation=None, fill=True, **kwargs):
+        """Draw a rectangle between the given points."""
+
+        x0, y0 = pos0
+        x1, y1 = pos1
+        self.polygon(
+            [(x0, y0), (x0, y1), (x1, y1), (x1, y0)],
+            transformation=transformation,
+            fill=fill,
+            **kwargs
+        )
