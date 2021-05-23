@@ -44,6 +44,7 @@ jobs:
 
   dist:
     runs-on: ubuntu-latest
+    name: Build packages
     steps:
     - uses: actions/checkout@v1
     - uses: actions/setup-python@v2
@@ -74,6 +75,7 @@ jobs:
   publish:
     needs: [dist]
     runs-on: ubuntu-latest
+    name: Upload packages
     if: github.event_name == 'release' && github.event.action == 'published'
 
     steps:
