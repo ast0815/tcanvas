@@ -34,12 +34,13 @@ jobs:
 
   pre-commit:
     runs-on: ubuntu-latest
+    name: Run pre-commit checks
     steps:
     - uses: actions/checkout@v1
     - uses: actions/setup-python@v2
     - uses: pre-commit/action@v2.0.2
-    with:
-      extra_args: --all-files --hook-stage manual
+      with:
+        extra_args: --all-files --hook-stage manual
 
   dist:
     runs-on: ubuntu-latest
