@@ -30,6 +30,7 @@ W      bright white
 
 """
 
+import shutil
 import click
 from .geometry import Geometry2D
 
@@ -151,17 +152,20 @@ class Texel(object):
 class CanvasBase(object):
     """A basic canvas.
 
+    It consists of a set of buffers to store relevant "pixel" information,
+    as well as methods to modify them.
+
     Parameters
     ----------
 
     columns, rows : int or None
-        The size of the canvas. Defaults to current terminal size.
+        The size of the canvas in its basic units. Uses best guess defaults when `None`.
     **kwargs : optional
-        Properties of the Texels to initialise the canvas.
+        Properties of the "pixels" to initialise the canvas.
     """
 
     def __init__(self, columns=None, rows=None, **kwargs):
-        term_width, term_height = click.get_terminal_size()
+        term_width, term_height = shutil.get_terminal_size()
         if columns is None:
             self._columns = term_width
         else:
@@ -173,7 +177,33 @@ class CanvasBase(object):
 
         self.clear(**kwargs)
 
-        self._transformations = {}
+        self._transformations = {
+            # "No" transformation:
+            # x = columns from the left
+            # y = rows from the top
+            "unit": lambda pos: (int(round(pos[0])), int(round(pos[1]))),
+        }
+
+        self.default_transformation = "unit"
+
+    def add_transformation(self, name, transformation):
+        """Add a transformation to the set of known ones.
+
+        Must be a function that turns a ``(float, float)`` tuple into
+        a basic unit ``(int, int)`` index.
+
+        """
+        self._transformations[name] = transformation
+
+    @property
+    def default_transformation(self):
+        """The transformation used when nothing else is specified."""
+        return self._default_transformation
+
+    @default_transformation.setter
+    def default_transformation(self, value):
+        """The transformation used when nothing else is specified."""
+        self._default_transformation = value
 
     @property
     def size(self):
@@ -187,20 +217,19 @@ class CanvasBase(object):
         ----------
 
         **kwargs : optional
-            Initialise the Texels with these settings.
+            Initialise the buffers with these settings.
 
         """
-        self._buffer = []
+
+        # Create new buffers according to class
+        self._buffers = {}
         ncol, nrow = self.size
+        for buf_name, BufClass in type(self).buffers.items():
+            self._buffers[buf_name] = BufClass(ncol, nrow, kwargs.get(buf_name, None))
         for row in range(nrow):
             self._buffer.append([])
             for column in range(ncol):
                 self._buffer[-1].append(Texel(**kwargs))
-
-    @property
-    def buffer(self):
-        """Return the buffer of the canvas."""
-        return self._buffer
 
     @property
     def transformations(self):
@@ -217,11 +246,8 @@ class CanvasBase(object):
 
         """
 
-        # No transformation:
-        # x = columns from the left
-        # y = rows from the top
         if transformation is None:
-            return tuple(int(round(x)) for x in pos)
+            transformation = self.default_transformation
 
         # Look up transformation
         return self._transformations[transformation](pos)
@@ -246,18 +272,18 @@ class CanvasBase(object):
         click.echo(self.render())
 
     def set(self, pos, transformation=None, **kwargs):
-        """Set texel properties at the given position.
+        """Set unit properties at the given position.
 
         Parameters
         ----------
 
         pos : (int, int) or (float, float)
-            The position of the manipulated texel
+            The position of the manipulated unit.
         transformation : str, optional
             The transformation to be used to translate between the position
-            coordinates and text rows and columns
+            coordinates and unit columns and rows.
         **kwargs : optional
-            The properties of the Texel to be set
+            The properties of the unit to be set.
 
         """
 
@@ -265,7 +291,29 @@ class CanvasBase(object):
         ncol, nrow = self.size
         if 0 <= col < ncol and 0 <= row < nrow:
             for attr, val in kwargs.items():
-                setattr(self._buffer[row][col], attr, val)
+                setattr(self._buffers[attr][col][row]=val)
+
+
+class BasicBuffer:
+    pass  # TODO
+
+
+class TCanvas(Geometry2D, CanvasBase):
+    """Canvas using terminal characters as basic unit."""
+
+    buffers = {
+        "character": BasicBuffer(),
+        "fg_color": BasicBuffer(),
+        "bg_color": BasicBuffer(),
+        "bold": BasicBuffer(),
+        "faint": BasicBuffer(),
+        "italic": BasicBuffer(),
+        "underline": BasicBuffer(),
+        "cross": BasicBuffer(),
+        "blink": BasicBuffer(),
+        "inverse": BasicBuffer(),
+        "overline": BasicBuffer(),
+    }
 
     def text(self, pos, text, transformation=None, **kwargs):
         """Write some text at the specified position."""
@@ -277,9 +325,46 @@ class CanvasBase(object):
                 y += 1
                 x = x0
             else:
-                self.set((x, y), transformation=None, character=char, **kwargs)
+                self.set((x, y), transformation="unit", character=char, **kwargs)
                 x += 1
 
 
-class TCanvas(Geometry2D, CanvasBase):
-    pass
+class DotCanvas(TCanvas):
+    """Canvas using Braille characters for finer plotting.
+
+    The default transform "dot" counts "pixels" rather than terminal
+    characters.
+
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(DotCanvas, self).__init__(*args, **kwargs)
+        self.add_transformation(
+            "dot", lambda pos: (int(round(pos[0]) // 2), int(round(pos[1]) // 4))
+        )
+        self.default_transformation = "dot"
+        self._dot_buffer = [None]
+
+    def set(self, pos, transformation=None, **kwargs):
+        """Set texel properties at the given position.
+
+        Parameters
+        ----------
+
+        pos : (int, int) or (float, float)
+            The position of the manipulated texel
+        transformation : str, optional
+            The transformation to be used to translate between the position
+            coordinates and text rows and columns
+        buffer : {"texel", "dot"}
+            Decide which buffer to write to.
+        **kwargs : optional
+            The properties of the Texel to be set
+
+        """
+
+        col, row = self.transform_position(pos, transformation)
+        ncol, nrow = self.size
+        if 0 <= col < ncol and 0 <= row < nrow:
+            for attr, val in kwargs.items():
+                setattr(self._buffer[row][col], attr, val)

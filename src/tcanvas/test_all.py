@@ -32,7 +32,22 @@ def test_tcanvas():
     c.set((19, 9), character="#")
     c.line((-1, 5), (10, -2), bg_color="r")
     c.line((2, -1), (6, 4), fg_color="W", blink=True, character="x")
-    c.triangle((2.6, 4.6), (6.4, 8.4), (15, 7), bg_color="c", fg_color="k")
+    c.triangle((3, 5), (6, 8), (15, 7), bg_color="c", fg_color="k")
+    c.triangle((3, 5), (6, 8), (15, 7), character="t", fill=False)
+    c.polygon([(10, 5), (18, 6), (19, 8), (18, 9), (12, 6)], bg_color="y", fg_color="k")
+    c.polygon([(10, 5), (18, 6), (19, 8), (18, 9), (12, 6)], character="p", fill=False)
+    c.rectangle((17, 3), (19, 5), character="r")
+    c.show()
+
+
+def test_dotcanvas():
+    c = DotCanvas(columns=20, rows=10, bg_color="K")
+    c.text((13, 0), "=======\nTCanvas\n=======")
+    c.set((0, 0), character="*")
+    c.set((19, 9), character="#")
+    c.line((-1, 5), (10, -2), bg_color="r")
+    c.line((2, -1), (6, 4), fg_color="W", blink=True, character="x")
+    c.triangle((3, 5), (6, 8), (15, 7), bg_color="c", fg_color="k")
     c.triangle((3, 5), (6, 8), (15, 7), character="t", fill=False)
     c.polygon([(10, 5), (18, 6), (19, 8), (18, 9), (12, 6)], bg_color="y", fg_color="k")
     c.polygon([(10, 5), (18, 6), (19, 8), (18, 9), (12, 6)], character="p", fill=False)
@@ -45,6 +60,7 @@ def main():
 
     test_texel()
     test_tcanvas()
+    test_dotcanvas()
 
 
 if __name__ == "__main__":
